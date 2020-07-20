@@ -704,4 +704,7 @@ export const blocks = [
     }
 ];
 
-export const blocksData = blocks.slice();
+export const blocksData = blocks.map(e => {
+    e.liked = false;
+    return e;
+});

@@ -26,6 +26,10 @@
                 <div><h3>{{item.title}}</h3></div>
                 <div class="card-text">{{item.text}}</div>
                 <div>Категория: {{item.category}}</div>
+                <div>
+                    <el-button @click="clickLike(item)">{{!item.liked ? 'Отметить понравившейся' : 'Убрать like'}}
+                    </el-button>
+                </div>
                 <span>{{item.date}}</span>
                 <hr style="width: 100%">
             </div>
@@ -92,7 +96,6 @@
                     if (this.items.length < blocksData.length) {
                         this.offset += 15;
                         this.items.push(...blocksData.slice(this.offset, this.offset + 15));
-                        console.log(this.offset, this.items.length);
                     }
                 }
             }, 200),
@@ -100,6 +103,12 @@
                 this.items = blocksData.slice(0, 15);
                 this.offset = 0;
                 document.getElementById('scrollElement').scrollTo(0, 0);
+            },
+            clickLike(item) {
+                item.liked = !item.liked;
+            //    здесь какой-то ajax запрос через сервер
+            //    не успеваю вбить параметры фильтра и сортировки в адресную строку
+            //    могу на словах потом объяснить, там ничего сложного: используем роутер, потом достаем переменные из роутера
             }
         }
     }
