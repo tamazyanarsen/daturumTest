@@ -1,13 +1,15 @@
 <template>
     <div class="main-content flex-column">
         <div class="filter-block flex">
-            <el-select v-model="filter.category">
+            <el-select v-model="filter.category"
+                       @change="updateItems()">
                 <el-option v-for="item in filterItems"
                            :value="item.value"
                            :key="item.id"
                            :label="item.name"></el-option>
             </el-select>
-            <el-select v-model="filter.sort">
+            <el-select v-model="filter.sort"
+                       @change="updateItems()">
                 <el-option v-for="item in sortItems"
                            :value="item.value"
                            :key="item.value"
@@ -15,7 +17,9 @@
             </el-select>
         </div>
         <div class="sort-block flex"></div>
-        <div class="content-block flex-column">
+        <div class="content-block flex-column"
+             @scroll="onScroll($event)"
+             id="scrollElement">
             <div v-for="item in cards"
                  :key="item.id"
                  class="block-card flex-column">
@@ -30,6 +34,7 @@
 </template>
 
 <script>
+    import * as ld from 'lodash';
     import { blocksData, categories } from "@/state/state";
 
     export default {
@@ -41,6 +46,8 @@
                     category: null,
                     sort: 1
                 },
+                offset: 0,
+                items: blocksData.slice(0, 15)
             };
         },
         computed: {
@@ -48,7 +55,7 @@
                 return categories.slice();
             },
             cards() {
-                return blocksData
+                return this.items
                     .filter(e => this.filter.category ? e.category === this.filter.category : true)
                     .sort((a, b) => {
                         const aDate = a.date + '';
@@ -76,6 +83,23 @@
             },
             sortItems() {
                 return [{ name: 'Сначала новые', value: 1 }, { name: 'Сначала старые', value: 2 }];
+            }
+        },
+        methods: {
+            onScroll: ld.debounce(function (event) {
+                const target = event.target;
+                if (target.clientHeight + target.scrollTop >= 0.7 * target.scrollHeight) {
+                    if (this.items.length < blocksData.length) {
+                        this.offset += 15;
+                        this.items.push(...blocksData.slice(this.offset, this.offset + 15));
+                        console.log(this.offset, this.items.length);
+                    }
+                }
+            }, 200),
+            updateItems() {
+                this.items = blocksData.slice(0, 15);
+                this.offset = 0;
+                document.getElementById('scrollElement').scrollTo(0, 0);
             }
         }
     }
